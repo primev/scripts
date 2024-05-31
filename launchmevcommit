@@ -4,14 +4,15 @@
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
-MEV_COMMIT_VERISON="v0.2.0"
+# todo: update mev-commit version, when new monorepo release is available
+MEV_COMMIT_VERISON="v0.2.0" 
 # Define the base URL for downloading the mev-commit release
-BASE_URL="https://github.com/primevprotocol/mev-commit/releases/download/$MEV_COMMIT_VERISON"
+BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERISON"
 
 # Contract Addresses
-BIDDER_REGISTRY_CONTRACT="0xa86a41b57Fb73f9118F84847574517258d29eAD0"
-PROVIDER_REGISTRY_CONTRACT="0x5960774AD41D03DAB4916a30bD2190f8b3b3b4b2"
-PRECONF_CONTRACT="0x7D1a4707e573D260581f3AB3f90f697Ab03fC6Dd"
+BIDDER_REGISTRY_CONTRACT="0x8021D1a949E124E39F9FFc812F39054e1521dAed"
+PROVIDER_REGISTRY_CONTRACT="0x9C108C6F4A6350B42B4Cf0384249A0BB2F57e12D"
+PRECONF_CONTRACT="0xb4FFB66e8a913F6Bcc7FbF4d27BC2b1545A0811b"
 
 # Function to show usage
 usage() {
@@ -115,6 +116,7 @@ echo -e "\033[31m[\033[34m*\033[31m]\033[33m Created private key and saved.\033[
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Wallet Address: $ADDRESS \033[0m"
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Funding Wallet Address: $ADDRESS with 100 ether \033[0m"
+# todo: probably this private key will be updated too
 if ! $HOME/.foundry/bin/cast send --rpc-url "$RPC_URL" --private-key 0x7c9bf0f015874594d321c1c01ada3166c3509bbd91f76f9e4d7380c2df269c55 $ADDRESS --value 100ether > /dev/null 2>&1; then
     echo -e "\033[31m[\033[34m*\033[31m]\033[33m Failed to send transaction with cast. \033[0m"
     exit 1
@@ -142,7 +144,7 @@ else
     echo -e "\033[31m[\033[34m*\033[31m]\033[33m Adding a prepay for bidder with $ADDRESS \033[0m"
 
     # Use the RPC URL variable in the cast send command
-    if ! curl -X POST http://localhost:13523/v1/bidder/prepay/1000000000000000000 > /dev/null 2>&1; then
+    if ! curl -X POST http://localhost:13523/v1/bidder/deposit/1000000000000000000 > /dev/null 2>&1; then
             echo "Failed to send bidder registration transaction."
             exit 1
     fi
