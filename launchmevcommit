@@ -9,6 +9,7 @@ MEV_COMMIT_VERISON="v0.2.0"
 # Define the base URL for downloading the mev-commit release
 BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERISON"
 
+# todo: those addresses probably will be updated
 # Contract Addresses
 BIDDER_REGISTRY_CONTRACT="0x8021D1a949E124E39F9FFc812F39054e1521dAed"
 PROVIDER_REGISTRY_CONTRACT="0x9C108C6F4A6350B42B4Cf0384249A0BB2F57e12D"
