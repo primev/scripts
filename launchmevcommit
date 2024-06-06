@@ -163,3 +163,4 @@ trap cleanup EXIT SIGINT
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
 
 wait $server_pid
+cleanup()
