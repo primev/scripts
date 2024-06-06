@@ -105,7 +105,7 @@ fi
 cd $ROOT_DIRECTORY
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
-./mev-commit --settlement-rpc-endpoint $RPC_URL --peer-type $NODE_TYPE --bootnodes /dnsaddr/bootnode.testnet.mev-commit.xyz & 
+./mev-commit --settlement-ws-rpc-endpoint ws://103.219.170.135:8546  --peer-type $NODE_TYPE --bootnodes /ip4/103.219.170.135/tcp/13522/p2p/16Uiu2HAmSpUXUWt9kMgDN2eFQtCGhRDfkCz847EXBokaqpikFZBV & 
 server_pid=$!
 
 sleep 5
@@ -116,13 +116,22 @@ ADDRESS=$(cast wallet address --private-key 0x$(cat $ROOT_DIRECTORY/key))
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Created private key and saved.\033[0m"
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Wallet Address: $ADDRESS \033[0m"
 
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m Funding Wallet Address: $ADDRESS with 100 ether \033[0m"
-# todo: probably this private key will be updated too
-if ! $HOME/.foundry/bin/cast send --rpc-url "$RPC_URL" --private-key 0x7c9bf0f015874594d321c1c01ada3166c3509bbd91f76f9e4d7380c2df269c55 $ADDRESS --value 100ether > /dev/null 2>&1; then
-    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Failed to send transaction with cast. \033[0m"
-    exit 1
-fi
-# Need to wait for node to start up
+echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for Wallet Address: $ADDRESS to be funded \033[0m"
+
+while true; do
+    balance=$($HOME/.foundry/bin/cast balance $ADDRESS --rpc-url $RPC_URL)
+    balance_in_ether=$(echo "scale=18; $balance / 1000000000000000000" | bc)
+    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Balance: $balance_in_ether ETH \033[0m"
+    
+    if (( $(echo "$balance_in_ether > 0" | bc -l) )); then
+        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Account $ADDRESS is now funded. \033[0m"
+        break
+    else
+        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for account $ADDRESS to be funded... \033[0m"
+        sleep 5
+    fi
+done
+
 sleep 3
 # Check i Node_Type is provider
 if [ "$NODE_TYPE" == "provider" ]; then
@@ -154,5 +163,3 @@ trap cleanup EXIT SIGINT
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
 
 wait $server_pid
-# ... [rest of your script] ...
-
