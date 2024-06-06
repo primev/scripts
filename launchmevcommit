@@ -4,12 +4,10 @@
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
-# todo: update mev-commit version, when new monorepo release is available
-MEV_COMMIT_VERISON="v0.2.0" 
+MEV_COMMIT_VERISON="v0.3.0-rc1" 
 # Define the base URL for downloading the mev-commit release
 BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERISON"
 
-# todo: those addresses probably will be updated
 # Contract Addresses
 BIDDER_REGISTRY_CONTRACT="0x8021D1a949E124E39F9FFc812F39054e1521dAed"
 PROVIDER_REGISTRY_CONTRACT="0x9C108C6F4A6350B42B4Cf0384249A0BB2F57e12D"
@@ -46,20 +44,20 @@ ARCH=$(uname -m)
 case $OS in
     "Darwin")
         case $ARCH in
-            "arm64") FILE="mev-commit_Darwin_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_Darwin_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Darwin_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Darwin_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Linux")
         case $ARCH in
-            "arm64") FILE="mev-commit_Linux_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_Linux_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Linux_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Linux_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Windows_NT")
-        FILE="mev-commit_Windows_x86_64.zip"
+        FILE="mev-commit_${MEV_COMMIT_VERSION}._Windows_x86_64.zip"
         ;;
     *)
         echo "Unsupported operating system"
