@@ -112,7 +112,7 @@ server_pid=$!
 cleanup() {
     echo "Killing mev-commit node with PID $server_pid"
     kill $server_pid
-    exit()
+    exit 0
 }
 
 # Set trap to call cleanup on script exit
