@@ -108,6 +108,18 @@ echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
 ./mev-commit --settlement-ws-rpc-endpoint ws://103.219.170.135:8546  --peer-type $NODE_TYPE --bootnodes /ip4/103.219.170.135/tcp/13522/p2p/16Uiu2HAmSpUXUWt9kMgDN2eFQtCGhRDfkCz847EXBokaqpikFZBV & 
 server_pid=$!
 
+# Function to cleanup on exit
+cleanup() {
+    echo "Killing mev-commit node with PID $server_pid"
+    kill $server_pid
+}
+
+# Set trap to call cleanup on script exit
+trap cleanup EXIT SIGINT SIGTERM
+
+echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
+
+
 sleep 5
 
 KEY=$(cat $ROOT_DIRECTORY/key)
@@ -150,16 +162,6 @@ if [ "$NODE_TYPE" == "provider" ]; then
     fi
 fi
 
-# Function to cleanup on exit
-cleanup() {
-    echo "Killing mev-commit node with PID $server_pid"
-    kill $server_pid
-}
 
-# Set trap to call cleanup on script exit
-trap cleanup EXIT SIGINT SIGTERM
-
-
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
 
 wait $server_pid
