@@ -139,15 +139,6 @@ if [ "$NODE_TYPE" == "provider" ]; then
     else
 	echo -e "\033[31m[\033[34m*\033[31m]\033[33m The address $ADDRESS is already registered as provider \033[0m"
     fi
-
-else
-    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Adding a prepay for bidder with $ADDRESS \033[0m"
-
-    # Use the RPC URL variable in the cast send command
-    if ! curl -X POST http://localhost:13523/v1/bidder/deposit/1000000000000000000 > /dev/null 2>&1; then
-            echo "Failed to send bidder registration transaction."
-            exit 1
-    fi
 fi
 
 # Function to cleanup on exit
