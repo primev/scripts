@@ -4,9 +4,9 @@
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
-MEV_COMMIT_VERISON="v0.3.0-rc1" 
+MEV_COMMIT_VERSION="v0.3.0-rc1" 
 # Define the base URL for downloading the mev-commit release
-BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERISON"
+BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERSION"
 
 # Contract Addresses
 BIDDER_REGISTRY_CONTRACT="0x8021D1a949E124E39F9FFc812F39054e1521dAed"
@@ -39,25 +39,27 @@ fi
 # Determine OS and Architecture
 OS=$(uname -s)
 ARCH=$(uname -m)
+# Remove the first character from MEV_COMMIT_VERSION
+VERSION=${MEV_COMMIT_VERSION:1}
 
 # Select the correct file based on OS and Architecture
 case $OS in
     "Darwin")
         case $ARCH in
-            "arm64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Darwin_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Darwin_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_$VERSION._Darwin_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_$VERSION._Darwin_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Linux")
         case $ARCH in
-            "arm64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Linux_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_${MEV_COMMIT_VERSION}._Linux_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_$VERSION._Linux_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_$VERSION._Linux_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Windows_NT")
-        FILE="mev-commit_${MEV_COMMIT_VERSION}._Windows_x86_64.zip"
+        FILE="mev-commit_$VERSION._Windows_x86_64.zip"
         ;;
     *)
         echo "Unsupported operating system"
@@ -124,7 +126,6 @@ fi
 sleep 3
 # Check i Node_Type is provider
 if [ "$NODE_TYPE" == "provider" ]; then
-
     stake_amount=$($HOME/.foundry/bin/cast call $PROVIDER_REGISTRY_CONTRACT 'checkStake(address)' $ADDRESS --rpc-url $RPC_URL)
     if [[ $stake_amount =~ ^0x0+$ ]]; then
 
