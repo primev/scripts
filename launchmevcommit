@@ -105,7 +105,7 @@ fi
 cd $ROOT_DIRECTORY
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
-./mev-commit --settlement-ws-rpc-endpoint ws://103.219.170.135:8546  --peer-type $NODE_TYPE --bootnodes /ip4/103.219.170.135/tcp/13522/p2p/16Uiu2HAmSpUXUWt9kMgDN2eFQtCGhRDfkCz847EXBokaqpikFZBV & 
+./mev-commit --settlement-ws-rpc-endpoint ws://103.219.170.135:8546  --peer-type $NODE_TYPE --bootnodes /ip4/103.219.170.135/tcp/13522/p2p/16Uiu2HAmREMaDJMiPZrS5PnF4ppKSLvvvH6aVgwCM6vTXxPicp1g & 
 server_pid=$!
 
 # Function to cleanup on exit
