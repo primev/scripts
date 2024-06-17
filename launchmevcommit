@@ -4,14 +4,17 @@
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
-MEV_COMMIT_VERISON="v0.2.0"
+MEV_COMMIT_VERSION="v0.3.0"
+MEV_COMMIT_LOG_LEVEL="debug"
 # Define the base URL for downloading the mev-commit release
-BASE_URL="https://github.com/primevprotocol/mev-commit/releases/download/$MEV_COMMIT_VERISON"
+BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERSION"
 
 # Contract Addresses
-BIDDER_REGISTRY_CONTRACT="0xa86a41b57Fb73f9118F84847574517258d29eAD0"
-PROVIDER_REGISTRY_CONTRACT="0x5960774AD41D03DAB4916a30bD2190f8b3b3b4b2"
-PRECONF_CONTRACT="0x7D1a4707e573D260581f3AB3f90f697Ab03fC6Dd"
+export MEV_COMMIT_BLOCK_TRACKER_ADDR="0x2eEbF31f5c932D51556E70235FB98bB2237d065c"
+export MEV_COMMIT_BIDDER_REGISTRY_ADDR="0x7ffa86fF89489Bca72Fec2a978e33f9870B2Bd25"
+export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="0x4FC9b98e1A0Ff10de4c2cf294656854F1d5B207D"
+export MEV_COMMIT_PRECONF_ADDR="0xCAC68D97a56b19204Dd3dbDC103CB24D47A825A3"
+
 
 # Function to show usage
 usage() {
@@ -39,25 +42,27 @@ fi
 # Determine OS and Architecture
 OS=$(uname -s)
 ARCH=$(uname -m)
+# Remove the first character from MEV_COMMIT_VERSION
+VERSION=${MEV_COMMIT_VERSION:1}
 
 # Select the correct file based on OS and Architecture
 case $OS in
     "Darwin")
         case $ARCH in
-            "arm64") FILE="mev-commit_Darwin_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_Darwin_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${VERSION}_Darwin_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${VERSION}_Darwin_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Linux")
         case $ARCH in
-            "arm64") FILE="mev-commit_Linux_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_Linux_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${VERSION}_Linux_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${VERSION}_Linux_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Windows_NT")
-        FILE="mev-commit_Windows_x86_64.zip"
+        FILE="mev-commit_${VERSION}_Windows_x86_64.zip"
         ;;
     *)
         echo "Unsupported operating system"
@@ -103,8 +108,21 @@ fi
 cd $ROOT_DIRECTORY
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
-./mev-commit --settlement-rpc-endpoint $RPC_URL --peer-type $NODE_TYPE --bootnodes /dnsaddr/bootnode.testnet.mev-commit.xyz & 
+./mev-commit --settlement-rpc-endpoint "${RPC_URL}" --peer-type $NODE_TYPE --bootnodes /dnsaddr/bootnode.testnet.mev-commit.xyz &
 server_pid=$!
+
+# Function to cleanup on exit
+cleanup() {
+    echo "Killing mev-commit node with PID $server_pid"
+    kill $server_pid
+    exit 0
+}
+
+# Set trap to call cleanup on script exit
+trap cleanup EXIT SIGINT SIGTERM
+
+echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
+
 
 sleep 5
 
@@ -114,16 +132,25 @@ ADDRESS=$(cast wallet address --private-key 0x$(cat $ROOT_DIRECTORY/key))
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Created private key and saved.\033[0m"
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Wallet Address: $ADDRESS \033[0m"
 
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m Funding Wallet Address: $ADDRESS with 100 ether \033[0m"
-if ! $HOME/.foundry/bin/cast send --rpc-url "$RPC_URL" --private-key 0x7c9bf0f015874594d321c1c01ada3166c3509bbd91f76f9e4d7380c2df269c55 $ADDRESS --value 100ether > /dev/null 2>&1; then
-    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Failed to send transaction with cast. \033[0m"
-    exit 1
-fi
-# Need to wait for node to start up
+echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for Wallet Address: $ADDRESS to be funded \033[0m"
+
+while true; do
+    balance=$($HOME/.foundry/bin/cast balance $ADDRESS --rpc-url $RPC_URL)
+    balance_in_ether=$(echo "scale=18; $balance / 1000000000000000000" | bc)
+    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Balance: $balance_in_ether ETH \033[0m"
+    
+    if (( $(echo "$balance_in_ether > 0" | bc -l) )); then
+        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Account $ADDRESS is now funded. \033[0m"
+        break
+    else
+        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for account $ADDRESS to be funded... \033[0m"
+        sleep 5
+    fi
+done
+
 sleep 3
 # Check i Node_Type is provider
 if [ "$NODE_TYPE" == "provider" ]; then
-
     stake_amount=$($HOME/.foundry/bin/cast call $PROVIDER_REGISTRY_CONTRACT 'checkStake(address)' $ADDRESS --rpc-url $RPC_URL)
     if [[ $stake_amount =~ ^0x0+$ ]]; then
 
@@ -137,29 +164,6 @@ if [ "$NODE_TYPE" == "provider" ]; then
     else
 	echo -e "\033[31m[\033[34m*\033[31m]\033[33m The address $ADDRESS is already registered as provider \033[0m"
     fi
-
-else
-    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Adding a prepay for bidder with $ADDRESS \033[0m"
-
-    # Use the RPC URL variable in the cast send command
-    if ! curl -X POST http://localhost:13523/v1/bidder/prepay/1000000000000000000 > /dev/null 2>&1; then
-            echo "Failed to send bidder registration transaction."
-            exit 1
-    fi
 fi
 
-# Function to cleanup on exit
-cleanup() {
-    echo "Killing mev-commit node with PID $server_pid"
-    kill $server_pid
-}
-
-# Set trap to call cleanup on script exit
-trap cleanup EXIT SIGINT
-
-
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script. \033[0m" 
-
 wait $server_pid
-# ... [rest of your script] ...
-
