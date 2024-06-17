@@ -2,18 +2,19 @@
 
 # Initialize variables
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
+CONTRACTS_URL="https://contracts.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
 MEV_COMMIT_VERSION="v0.3.0"
-MEV_COMMIT_LOG_LEVEL="debug"
+MEV_COMMIT_LOG_LEVEL="info"
 # Define the base URL for downloading the mev-commit release
-BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERSION"
+BASE_URL="https://github.com/primev/mev-commit/releases/download/${MEV_COMMIT_VERSION}"
 
 # Contract Addresses
-export MEV_COMMIT_BLOCK_TRACKER_ADDR="0x2eEbF31f5c932D51556E70235FB98bB2237d065c"
-export MEV_COMMIT_BIDDER_REGISTRY_ADDR="0x7ffa86fF89489Bca72Fec2a978e33f9870B2Bd25"
-export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="0x4FC9b98e1A0Ff10de4c2cf294656854F1d5B207D"
-export MEV_COMMIT_PRECONF_ADDR="0xCAC68D97a56b19204Dd3dbDC103CB24D47A825A3"
+export MEV_COMMIT_BLOCK_TRACKER_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.BlockTracker')"
+export MEV_COMMIT_BIDDER_REGISTRY_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.BidderRegistry')"
+export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.ProviderRegistry')"
+export MEV_COMMIT_PRECONF_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.PreConfCommitmentStore')"
 
 
 # Function to show usage
