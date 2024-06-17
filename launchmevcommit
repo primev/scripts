@@ -4,14 +4,17 @@
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
-MEV_COMMIT_VERSION="v0.3.0-rc1" 
+MEV_COMMIT_VERSION="v0.3.0"
+MEV_COMMIT_LOG_LEVEL="debug"
 # Define the base URL for downloading the mev-commit release
 BASE_URL="https://github.com/primev/mev-commit/releases/download/$MEV_COMMIT_VERSION"
 
 # Contract Addresses
-BIDDER_REGISTRY_CONTRACT="0x8021D1a949E124E39F9FFc812F39054e1521dAed"
-PROVIDER_REGISTRY_CONTRACT="0x9C108C6F4A6350B42B4Cf0384249A0BB2F57e12D"
-PRECONF_CONTRACT="0xb4FFB66e8a913F6Bcc7FbF4d27BC2b1545A0811b"
+export MEV_COMMIT_BLOCK_TRACKER_ADDR="0x2eEbF31f5c932D51556E70235FB98bB2237d065c"
+export MEV_COMMIT_BIDDER_REGISTRY_ADDR="0x7ffa86fF89489Bca72Fec2a978e33f9870B2Bd25"
+export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="0x4FC9b98e1A0Ff10de4c2cf294656854F1d5B207D"
+export MEV_COMMIT_PRECONF_ADDR="0xCAC68D97a56b19204Dd3dbDC103CB24D47A825A3"
+
 
 # Function to show usage
 usage() {
@@ -46,20 +49,20 @@ VERSION=${MEV_COMMIT_VERSION:1}
 case $OS in
     "Darwin")
         case $ARCH in
-            "arm64") FILE="mev-commit_$VERSION._Darwin_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_$VERSION._Darwin_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${VERSION}_Darwin_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${VERSION}_Darwin_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Linux")
         case $ARCH in
-            "arm64") FILE="mev-commit_$VERSION._Linux_arm64.tar.gz" ;;
-            "x86_64") FILE="mev-commit_$VERSION._Linux_x86_64.tar.gz" ;;
+            "arm64") FILE="mev-commit_${VERSION}_Linux_arm64.tar.gz" ;;
+            "x86_64") FILE="mev-commit_${VERSION}_Linux_x86_64.tar.gz" ;;
             *) echo "Unsupported architecture"; exit 1 ;;
         esac
         ;;
     "Windows_NT")
-        FILE="mev-commit_$VERSION._Windows_x86_64.zip"
+        FILE="mev-commit_${VERSION}_Windows_x86_64.zip"
         ;;
     *)
         echo "Unsupported operating system"
@@ -105,7 +108,7 @@ fi
 cd $ROOT_DIRECTORY
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
-./mev-commit --settlement-ws-rpc-endpoint ws://103.219.170.135:8546  --peer-type $NODE_TYPE --bootnodes /ip4/103.219.170.135/tcp/13522/p2p/16Uiu2HAmREMaDJMiPZrS5PnF4ppKSLvvvH6aVgwCM6vTXxPicp1g & 
+./mev-commit --settlement-rpc-endpoint "${RPC_URL}" --peer-type $NODE_TYPE --bootnodes /dnsaddr/bootnode.testnet.mev-commit.xyz &
 server_pid=$!
 
 # Function to cleanup on exit
@@ -162,7 +165,5 @@ if [ "$NODE_TYPE" == "provider" ]; then
 	echo -e "\033[31m[\033[34m*\033[31m]\033[33m The address $ADDRESS is already registered as provider \033[0m"
     fi
 fi
-
-
 
 wait $server_pid
