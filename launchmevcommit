@@ -2,7 +2,7 @@
 
 # Initialize variables
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
-CONTRACTS_URL="https://contracts.testnet.mev-commit.xyz"
+CONTRACTS="$(curl --silent https://contracts.testnet.mev-commit.xyz)"
 NODE_TYPE=""
 ROOT_DIRECTORY="$HOME/.mev-commit"
 MEV_COMMIT_VERSION="v0.3.0"
@@ -11,18 +11,16 @@ MEV_COMMIT_LOG_LEVEL="info"
 BASE_URL="https://github.com/primev/mev-commit/releases/download/${MEV_COMMIT_VERSION}"
 
 # Contract Addresses
-export MEV_COMMIT_BLOCK_TRACKER_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.BlockTracker')"
-export MEV_COMMIT_BIDDER_REGISTRY_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.BidderRegistry')"
-export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.ProviderRegistry')"
-export MEV_COMMIT_PRECONF_ADDR="$(curl --silent ${CONTRACTS_URL} | jq -r '.PreConfCommitmentStore')"
-
+export MEV_COMMIT_BLOCK_TRACKER_ADDR="$(echo ${CONTRACTS} | jq -r '.BlockTracker')"
+export MEV_COMMIT_BIDDER_REGISTRY_ADDR="$(echo ${CONTRACTS} | jq -r '.BidderRegistry')"
+export MEV_COMMIT_PROVIDER_REGISTRY_ADDR="$(echo ${CONTRACTS} | jq -r '.ProviderRegistry')"
+export MEV_COMMIT_PRECONF_ADDR="$(echo ${CONTRACTS} | jq -r '.PreConfCommitmentStore')"
 
 # Function to show usage
 usage() {
     echo "Usage: $0 --rpc-url <RPC_URL> --node-type <NODE_TYPE>"
     exit 1
 }
-
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
@@ -70,7 +68,6 @@ case $OS in
         exit 1
         ;;
 esac
-
 
 # Download the file using curl
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Downloading mev-commit files...\033[0m"
