@@ -130,7 +130,7 @@ ADDRESS=$(cast wallet address --private-key 0x$(cat $ROOT_DIRECTORY/key))
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Created private key and saved.\033[0m"
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Wallet Address: $ADDRESS \033[0m"
 
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for Wallet Address: $ADDRESS to be funded \033[0m"
+echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for Wallet Address: $ADDRESS to be funded. Please go to http://faucet.testnet.mev-commit.xyz/ to fund.\033[0m"
 
 while true; do
     balance=$($HOME/.foundry/bin/cast balance $ADDRESS --rpc-url $RPC_URL)
@@ -141,7 +141,7 @@ while true; do
         echo -e "\033[31m[\033[34m*\033[31m]\033[33m Account $ADDRESS is now funded. \033[0m"
         break
     else
-        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for account $ADDRESS to be funded... \033[0m"
+        echo -e "\033[31m[\033[34m*\033[31m]\033[33m Waiting for account $ADDRESS to be funded... Please go to http://faucet.testnet.mev-commit.xyz/ to fund. \033[0m"
         sleep 5
     fi
 done
