@@ -173,4 +173,8 @@ done
 
 sleep 3
 
+if [ "${NODE_TYPE}" == "provider" ]; then
+    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Next, to register and stake as a provider, visit https://docs.primev.xyz/get-started/providers/registering-a-provider \033[0m"
+fi
+
 wait $server_pid
