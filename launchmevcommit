@@ -173,16 +173,18 @@ done
 
 sleep 10
 
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m Sending auto deposit request...\033[0m"
-CURL_RESPONSE=$(curl --silent --show-error --write-out "%{http_code}" --output /dev/null -X POST "http://localhost:13523/v1/bidder/auto_deposit/1000000000000000000")
+if [ "${NODE_TYPE}" == "bidder" ]; then
+    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Sending auto deposit request...\033[0m"
+    CURL_RESPONSE=$(curl --silent --show-error --write-out "%{http_code}" --output /dev/null -X POST "http://localhost:13523/v1/bidder/auto_deposit/1000000000000000000")
 
-# Check the response of the curl request
-if [ "$CURL_RESPONSE" -ne 200 ]; then
-    echo "Error: Failed to send auto deposit request. HTTP status code: $CURL_RESPONSE"
-    exit 1
+    # Check the response of the curl request
+    if [ "$CURL_RESPONSE" -ne 200 ]; then
+        echo "Error: Failed to send auto deposit request. HTTP status code: $CURL_RESPONSE"
+        exit 1
+    fi
+
+    echo -e "\033[31m[\033[34m*\033[31m]\033[33m Auto deposit request sent successfully. \033[0m"
 fi
-
-echo -e "\033[31m[\033[34m*\033[31m]\033[33m Auto deposit request sent successfully. \033[0m"
 
 if [ "${NODE_TYPE}" == "provider" ]; then
     echo -e "\033[31m[\033[34m*\033[31m]\033[33m Next, to register and stake as a provider, visit https://docs.primev.xyz/get-started/providers/registering-a-provider \033[0m"
