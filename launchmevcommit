@@ -3,7 +3,7 @@
 # Default variables
 DEVENV=false
 NODE_TYPE=""
-MEV_COMMIT_VERSION="v0.4.0"
+MEV_COMMIT_VERSION="v0.4.1"
 ROOT_DIRECTORY="${HOME}/.mev-commit"
 RPC_URL="https://chainrpc.testnet.mev-commit.xyz"
 FAUCET_URL="http://faucet.testnet.mev-commit.xyz"
