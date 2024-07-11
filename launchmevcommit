@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
 
+missing_utils=()
+required_utilities=(
+    jq
+    sed
+    curl
+    cast
+)
+for util in "${required_utilities[@]}"; do
+    if ! command -v "${util}" &> /dev/null; then
+        missing_utils+=("${util}")
+    fi
+done
+if [[ ${#missing_utils[@]} -ne 0 ]]; then
+    echo "Error: The following utilities are required and not installed: ${missing_utils[*]}."
+    exit 1
+fi
+
 # Default variables
 DEVENV=false
 NODE_TYPE=""
@@ -129,7 +146,7 @@ if [ ! -f ${ROOT_DIRECTORY}/mev-commit ]; then
 fi
 
 # Navigate to the target directory
-cd ${ROOT_DIRECTORY}
+cd ${ROOT_DIRECTORY} || exit 1
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Initializing mev-commit...\033[0m"
 ./mev-commit --settlement-rpc-endpoint "${RPC_URL}" --peer-type ${NODE_TYPE} --bootnodes /dnsaddr/bootnode.testnet.mev-commit.xyz &
@@ -150,7 +167,7 @@ echo -e "\033[31m[\033[34m*\033[31m]\033[33m To kill mev-commit, exit the script
 sleep 5
 
 KEY=$(cat ${ROOT_DIRECTORY}/key)
-ADDRESS=$(cast wallet address --private-key 0x$(cat ${ROOT_DIRECTORY}/key))
+ADDRESS=$(cast wallet address --private-key "0x${KEY}")
 
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Created private key and saved.\033[0m"
 echo -e "\033[31m[\033[34m*\033[31m]\033[33m Wallet Address: ${ADDRESS} \033[0m"
@@ -177,9 +194,8 @@ if [ "${NODE_TYPE}" == "bidder" ]; then
     echo -e "\033[31m[\033[34m*\033[31m]\033[33m Sending auto deposit request...\033[0m"
     CURL_RESPONSE=$(curl --silent --show-error --write-out "%{http_code}" --output /dev/null -X POST "http://localhost:13523/v1/bidder/auto_deposit/1000000000000000000")
 
-    # Check the response of the curl request
-    if [ "$CURL_RESPONSE" -ne 200 ]; then
-        echo "Error: Failed to send auto deposit request. HTTP status code: $CURL_RESPONSE"
+    if [ "${CURL_RESPONSE}" -ne 200 ]; then
+        echo "Error: Failed to send auto deposit request. HTTP status code: ${CURL_RESPONSE}"
         exit 1
     fi
 
